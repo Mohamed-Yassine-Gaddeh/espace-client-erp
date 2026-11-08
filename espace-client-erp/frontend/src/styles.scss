@@ -1,0 +1,95 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+/* ============================================================
+   Mode sombre — surcouche globale additive.
+   N'importe quel élément déjà stylé ailleurs reste inchangé en
+   mode clair ; ces règles ne s'appliquent que si la classe
+   `dark-theme` est posée sur <body> (voir dark-mode.service.ts).
+   Approche volontairement non invasive pour ne casser aucun style
+   existant : on cible les conteneurs visibles plutôt que de
+   réécrire chaque composant.
+   ============================================================ */
+body.dark-theme {
+  background-color: #0f1523;
+  color: #e6e9f0;
+
+  .page,
+  .dashboard,
+  .auth-page {
+    background-color: #0f1523 !important;
+    color: #e6e9f0;
+  }
+
+  .topbar {
+    background-color: #16213e !important;
+    border-color: #26314f !important;
+  }
+
+  .topbar__user-name,
+  .topbar__chevron {
+    color: #e6e9f0 !important;
+  }
+
+  .topbar__dropdown,
+  .card,
+  .detail-card,
+  .data-table,
+  .auth-card,
+  .chatbot__panel,
+  .notif-item {
+    background-color: #16213e !important;
+    border-color: #26314f !important;
+    color: #e6e9f0;
+  }
+
+  .data-table thead {
+    background-color: #1c2947 !important;
+  }
+
+  .data-table td {
+    border-color: #26314f !important;
+    color: #e6e9f0;
+  }
+
+  .card__title,
+  .page__title,
+  .detail-card__value,
+  .dashboard__title,
+  .auth-card__title {
+    color: #f2f4f8 !important;
+  }
+
+  .card__empty,
+  .muted,
+  .detail-card__label,
+  .auth-card__subtitle {
+    color: #9aa4bd !important;
+  }
+
+  input,
+  select,
+  textarea {
+    background-color: #1c2947 !important;
+    border-color: #33405f !important;
+    color: #e6e9f0 !important;
+  }
+
+  .status-badge,
+  .link-button {
+    background-color: #1c2947 !important;
+    color: #e6e9f0 !important;
+  }
+}

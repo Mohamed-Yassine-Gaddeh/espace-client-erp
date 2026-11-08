@@ -1,0 +1,94 @@
+<div class="page">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="page__content">
+    <a routerLink="/orders" class="back-link">{{ i18n.t('orders.backToList') }}</a>
+
+    @if (isLoading()) {
+      <div class="page__loading">{{ i18n.t('common.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="page__error">{{ loadError() }}</div>
+    } @else if (order(); as o) {
+      <h1 class="page__title">{{ i18n.t('nav.orders') }} {{ o.numero }}</h1>
+
+      <div class="detail-card">
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('orders.date') }}</span>
+          <span class="detail-card__value">{{ o.date_commande | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('orders.status') }}</span>
+          <span class="status-badge" [class.status-badge--ok]="o.est_valider">
+            {{ o.est_valider ? i18n.t('orders.validated') : i18n.t('orders.pending') }}
+          </span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('orders.totalTtc') }}</span>
+          <span class="detail-card__value">{{ o.total_ttc | number: '1.2-2' }} {{ i18n.t('common.currency') }}</span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('orders.balanceDue') }}</span>
+          <span class="detail-card__value">{{ o.solde_du | number: '1.2-2' }} {{ i18n.t('common.currency') }}</span>
+        </div>
+      </div>
+
+      <button class="primary-button" (click)="downloadPdf()" [disabled]="isDownloading()">
+        {{ isDownloading() ? i18n.t('orders.generating') : i18n.t('orders.downloadPdf') }}
+      </button>
+
+      <h2 class="page__title" style="font-size: 16px; margin-top: 28px;">{{ i18n.t('orders.articles') }}</h2>
+      @if (o.lignes.length > 0) {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ i18n.t('orders.article') }}</th>
+              <th>{{ i18n.t('orders.reference') }}</th>
+              <th>{{ i18n.t('orders.quantity') }}</th>
+              <th>{{ i18n.t('orders.priceHt') }}</th>
+              <th>{{ i18n.t('orders.totalTtc') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of o.lignes; track $index) {
+              <tr>
+                <td>{{ ligne.nom_article }}</td>
+                <td>{{ ligne.reference || '-' }}</td>
+                <td>{{ ligne.quantite }}</td>
+                <td>{{ ligne.prix_ht | number: '1.3-3' }} {{ i18n.t('common.currency') }}</td>
+                <td>{{ ligne.total_prix_ttc | number: '1.2-2' }} {{ i18n.t('common.currency') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="page__empty">{{ i18n.t('orders.noLines') }}</p>
+      }
+
+      <h2 class="page__title" style="font-size: 16px; margin-top: 28px;">{{ i18n.t('orders.statusHistory') }}</h2>
+      @if (o.historique_statuts.length > 0) {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ i18n.t('orders.date') }}</th>
+              <th>{{ i18n.t('orders.oldStatus') }}</th>
+              <th>{{ i18n.t('orders.newStatus') }}</th>
+              <th>{{ i18n.t('orders.comment') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (h of o.historique_statuts; track $index) {
+              <tr>
+                <td>{{ h.date_changement | date: 'dd/MM/yyyy HH:mm' }}</td>
+                <td>{{ h.ancien_status_id ?? '-' }}</td>
+                <td>{{ h.nouveau_status_id ?? '-' }}</td>
+                <td>{{ h.commentaire || '-' }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="page__empty">{{ i18n.t('orders.noHistory') }}</p>
+      }
+    }
+  </main>
+</div>

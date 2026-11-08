@@ -1,0 +1,81 @@
+@use '../../shared/list-page' as *;
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  .page__title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge {
+    background: $color-primary;
+    color: #fff;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 12px;
+  }
+}
+
+.notif-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notif-item {
+  background: #fff;
+  border: 1px solid $color-slate-300;
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: background 0.1s ease;
+
+  &:hover {
+    background: $color-slate-50;
+  }
+
+  strong {
+    font-size: 14px;
+    color: $color-ink;
+  }
+
+  p {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: $color-slate-500;
+  }
+
+  &__date {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: $color-slate-500;
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: $color-primary;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+
+  &--unread {
+    border-color: $color-primary;
+
+    strong {
+      color: $color-primary;
+    }
+  }
+}

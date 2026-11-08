@@ -1,0 +1,222 @@
+// Palette : bleu encre + gris ardoise, pensée pour un portail B2B sobre et fiable
+$color-ink: #16213e;
+$color-primary: #2c4a7c;
+$color-primary-dark: #1d3760;
+$color-slate-50: #f7f8fb;
+$color-slate-100: #edf0f5;
+$color-slate-300: #cbd3e0;
+$color-slate-500: #6b7688;
+$color-error-bg: #fdecec;
+$color-error-text: #b3261e;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, $color-slate-50 0%, $color-slate-100 100%);
+  padding: 24px;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid $color-slate-300;
+  border-radius: 12px;
+  padding: 40px 36px;
+  box-shadow: 0 12px 32px rgba(22, 33, 62, 0.06);
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  &__mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: $color-primary;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
+
+  &__brand-name {
+    font-weight: 600;
+    color: $color-ink;
+    font-size: 15px;
+  }
+
+  &__title {
+    font-size: 22px;
+    font-weight: 700;
+    color: $color-ink;
+    margin: 0 0 6px;
+  }
+
+  &__subtitle {
+    font-size: 14px;
+    color: $color-slate-500;
+    margin: 0 0 24px;
+  }
+
+  &__footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 14px;
+    color: $color-slate-500;
+
+    a {
+      color: $color-primary;
+      font-weight: 600;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.auth-alert {
+  background: $color-error-bg;
+  color: $color-error-text;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  &__meta {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -8px;
+
+    a {
+      font-size: 13px;
+      color: $color-primary;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  &__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    min-width: 0;
+  }
+}
+
+.auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+
+  label {
+    font-size: 13px;
+    font-weight: 600;
+    color: $color-ink;
+  }
+
+  input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid $color-slate-300;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    color: $color-ink;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus {
+      outline: none;
+      border-color: $color-primary;
+      box-shadow: 0 0 0 3px rgba(44, 74, 124, 0.15);
+    }
+
+    &::placeholder {
+      color: $color-slate-500;
+    }
+  }
+
+  &__error {
+    font-size: 12px;
+    color: $color-error-text;
+  }
+
+  &__hint {
+    font-size: 12px;
+    color: $color-slate-500;
+  }
+}
+
+.auth-button {
+  margin-top: 6px;
+  background: $color-primary;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: $color-primary-dark;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.auth-success {
+  background: #e9f6ee;
+  color: #1c6b3f;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.auth-dev-box {
+  background: #fff6e5;
+  border: 1px dashed #d4a017;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 12.5px;
+  color: #8a5a00;
+  margin-top: -8px;
+  margin-bottom: 18px;
+  word-break: break-all;
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  a {
+    color: #2c4a7c;
+    text-decoration: underline;
+  }
+}

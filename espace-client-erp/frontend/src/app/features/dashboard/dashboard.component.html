@@ -1,0 +1,316 @@
+<div class="dashboard">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="dashboard__content">
+    @if (isLoading()) {
+      <div class="dashboard__loading">{{ i18n.t('dashboard.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="dashboard__error">
+        {{ loadError() }}
+        <button (click)="loadSummary()">{{ i18n.t('common.retry') }}</button>
+      </div>
+    } @else if (summary(); as data) {
+      <h1 class="dashboard__title">{{ i18n.t('dashboard.greeting') }}, {{ data.customer_name }}</h1>
+
+      @if (!data.erp_linked) {
+        <div class="dashboard__banner dashboard__banner--warning">
+          {{ i18n.t('dashboard.notLinked') }}
+        </div>
+      }
+
+      @if (data.erp_errors.length > 0) {
+        <div class="dashboard__banner dashboard__banner--warning">
+          @for (err of data.erp_errors; track err) {
+            <div>{{ err }}</div>
+          }
+        </div>
+      }
+
+      <section class="dashboard__grid">
+        <!-- Solde du compte -->
+        <div class="card">
+          <h2 class="card__title">{{ i18n.t('dashboard.balance') }}</h2>
+          @if (data.balance) {
+            <p class="card__big-number">
+              {{ data.balance.balance | number: '1.2-2' }} {{ data.balance.currency }}
+            </p>
+          } @else {
+            <p class="card__empty">{{ i18n.t('dashboard.notAvailable') }}</p>
+          }
+        </div>
+
+        <!-- Factures Ventes -->
+        <div class="card">
+          <h2 class="card__title">{{ i18n.t('dashboard.salesInvoices') }}</h2>
+          <p class="card__big-number">
+            {{ data.finance.factures_ventes_total | number: '1.2-2' }} {{ data.finance.currency }}
+          </p>
+        </div>
+
+        <!-- Factures d'achats -->
+        <div class="card">
+          <h2 class="card__title">{{ i18n.t('dashboard.purchaseInvoices') }}</h2>
+          <p class="card__big-number">
+            {{ data.finance.factures_achats_total | number: '1.2-2' }} {{ data.finance.currency }}
+          </p>
+        </div>
+
+        <!-- Dépenses -->
+        <div class="card">
+          <h2 class="card__title">{{ i18n.t('dashboard.expenses') }}</h2>
+          <p class="card__big-number">
+            {{ data.finance.depenses_total | number: '1.2-2' }} {{ data.finance.currency }}
+          </p>
+        </div>
+
+        <!-- Marge brute / Marge nette -->
+        <div class="card">
+          <h2 class="card__title">{{ i18n.t('dashboard.grossMargin') }}</h2>
+          <p class="card__big-number">
+            {{ data.finance.marge_brute | number: '1.2-2' }} {{ data.finance.currency }}
+          </p>
+          <div style="margin-top: 14px; padding-top: 14px; border-top: 1px solid #edf0f5;">
+            <h2 class="card__title" style="margin-bottom: 6px;">{{ i18n.t('dashboard.netMargin') }}</h2>
+            <p class="card__big-number" style="font-size: 20px;">
+              {{ data.finance.marge_nette | number: '1.2-2' }} {{ data.finance.currency }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Comptes bancaires -->
+        <div class="card">
+          <h2 class="card__title">{{ i18n.t('dashboard.bankAccounts') }}</h2>
+          @if (data.finance.comptes_bancaires.length > 0) {
+            <ul class="card__list">
+              @for (compte of data.finance.comptes_bancaires; track compte.id) {
+                <li>
+                  <strong>{{ compte.nom_banque }}</strong>
+                  <span>{{ compte.solde | number: '1.2-2' }} {{ data.finance.currency }}</span>
+                </li>
+              }
+            </ul>
+          } @else {
+            <p class="card__empty">{{ i18n.t('dashboard.noBankAccount') }}</p>
+          }
+        </div>
+
+        <!-- Solde de trésorerie actuelle -->
+        <div class="card card--span-2">
+          <h2 class="card__title">{{ i18n.t('dashboard.treasuryBalance') }}</h2>
+          <p class="card__big-number">
+            {{ data.finance.solde_tresorerie_actuelle | number: '1.2-2' }} {{ data.finance.currency }}
+          </p>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           Nouveau bloc "dashboard ERP moderne" : actions rapides, KPIs,
+           graphiques, tops, dernières factures/commandes.
+           ============================================================ -->
+
+      <!-- Actions rapides -->
+      <h2 class="dashboard__section-title">{{ i18n.t('quickActions.title') }}</h2>
+      <div class="quick-actions">
+        @for (action of quickActions(); track action.route) {
+          <button class="quick-action" (click)="navigateTo(action.route)">
+            <span class="quick-action__icon">{{ action.icon }}</span>
+            <span>{{ i18n.t(action.labelKey) }}</span>
+          </button>
+        }
+      </div>
+
+      @if (isOverviewLoading()) {
+        <div class="dashboard__loading">{{ i18n.t('common.loading') }}</div>
+      } @else if (overview(); as ov) {
+        <!-- Cartes KPI -->
+        <h2 class="dashboard__section-title">KPI</h2>
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <span class="kpi-card__icon">💵</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.revenue') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.chiffre_affaires.valeur | number: '1.0-0' }} {{ ov.currency }}</span>
+              @if (ov.kpis.chiffre_affaires.variation !== null) {
+                <span class="kpi-card__variation" [class.kpi-card__variation--down]="ov.kpis.chiffre_affaires.variation! < 0">
+                  {{ ov.kpis.chiffre_affaires.variation! >= 0 ? '▲' : '▼' }} {{ ov.kpis.chiffre_affaires.variation }}%
+                </span>
+              }
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">📦</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.orders') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.nb_commandes.valeur }}</span>
+              @if (ov.kpis.nb_commandes.variation !== null) {
+                <span class="kpi-card__variation" [class.kpi-card__variation--down]="ov.kpis.nb_commandes.variation! < 0">
+                  {{ ov.kpis.nb_commandes.variation! >= 0 ? '▲' : '▼' }} {{ ov.kpis.nb_commandes.variation }}%
+                </span>
+              }
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">👥</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.clients') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.nb_clients.valeur }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">✨</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.newClients') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.nouveaux_clients.valeur }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">✅</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.paidInvoices') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.factures_payees.valeur }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">⚠️</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.unpaidInvoices') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.factures_impayees.valeur }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">💸</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.expenses') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.depenses.valeur | number: '1.0-0' }} {{ ov.currency }}</span>
+              @if (ov.kpis.depenses.variation !== null) {
+                <span class="kpi-card__variation" [class.kpi-card__variation--down]="ov.kpis.depenses.variation! < 0">
+                  {{ ov.kpis.depenses.variation! >= 0 ? '▲' : '▼' }} {{ ov.kpis.depenses.variation }}%
+                </span>
+              }
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">🏦</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.treasury') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.tresorerie.valeur | number: '1.0-0' }} {{ ov.currency }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">📊</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.grossMargin') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.marge_brute.valeur | number: '1.0-0' }} {{ ov.currency }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">📈</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.netMargin') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.marge_nette.valeur | number: '1.0-0' }} {{ ov.currency }}</span>
+            </div>
+          </div>
+          <div class="kpi-card">
+            <span class="kpi-card__icon">🗂️</span>
+            <div>
+              <span class="kpi-card__label">{{ i18n.t('kpi.articles') }}</span>
+              <span class="kpi-card__value">{{ ov.kpis.nb_articles.valeur }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="dashboard__grid">
+          <div class="card card--span-2">
+            <h2 class="card__title">{{ i18n.t('charts.revenueVsExpenses') }}</h2>
+            <app-chart type="bar" [labels]="ov.charts.labels" [datasets]="revenueVsExpensesDatasets()"></app-chart>
+          </div>
+          <div class="card card--span-2">
+            <h2 class="card__title">{{ i18n.t('charts.profitEvolution') }}</h2>
+            <app-chart type="line" [labels]="ov.charts.labels" [datasets]="profitDatasets()"></app-chart>
+          </div>
+        </div>
+
+        <!-- Meilleurs clients / Articles les plus vendus -->
+        <div class="dashboard__grid">
+          <div class="card">
+            <h2 class="card__title">{{ i18n.t('topClients.title') }}</h2>
+            @if (ov.top_clients.length > 0) {
+              <ul class="card__list">
+                @for (c of ov.top_clients; track c.id) {
+                  <li>
+                    <strong>{{ c.nom }}</strong>
+                    <span>{{ c.total | number: '1.2-2' }} {{ ov.currency }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="card__empty">{{ i18n.t('topClients.empty') }}</p>
+            }
+          </div>
+          <div class="card">
+            <h2 class="card__title">{{ i18n.t('topArticles.title') }}</h2>
+            @if (ov.top_articles.length > 0) {
+              <ul class="card__list">
+                @for (a of ov.top_articles; track a.nom) {
+                  <li>
+                    <strong>{{ a.nom }}</strong>
+                    <span class="muted">{{ a.quantite }} {{ i18n.t('topArticles.quantitySold') }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="card__empty">{{ i18n.t('topArticles.empty') }}</p>
+            }
+          </div>
+        </div>
+
+        <!-- Dernières factures / commandes -->
+        <div class="dashboard__grid">
+          <div class="card">
+            <h2 class="card__title">{{ i18n.t('recentInvoices.title') }}</h2>
+            @if (ov.dernieres_factures.length > 0) {
+              <ul class="card__list">
+                @for (f of ov.dernieres_factures; track f.id) {
+                  <li>
+                    <div>
+                      <strong>{{ f.numero }}</strong>
+                      <span class="muted">{{ f.date_facture | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                    <span class="status-badge" [class.status-badge--ok]="f.est_solder">
+                      {{ f.total_ttc | number: '1.2-2' }} {{ ov.currency }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="card__empty">{{ i18n.t('invoices.empty') }}</p>
+            }
+          </div>
+          <div class="card">
+            <h2 class="card__title">{{ i18n.t('recentOrders.title') }}</h2>
+            @if (ov.dernieres_commandes.length > 0) {
+              <ul class="card__list">
+                @for (c of ov.dernieres_commandes; track c.id) {
+                  <li>
+                    <div>
+                      <strong>{{ c.numero }}</strong>
+                      <span class="muted">{{ c.date_commande | date: 'dd/MM/yyyy' }}</span>
+                    </div>
+                    <span class="status-badge" [class.status-badge--ok]="c.est_valider">
+                      {{ c.total_ttc | number: '1.2-2' }} {{ ov.currency }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="card__empty">{{ i18n.t('orders.empty') }}</p>
+            }
+          </div>
+        </div>
+      }
+    }
+  </main>
+
+  <app-chatbot-widget></app-chatbot-widget>
+</div>

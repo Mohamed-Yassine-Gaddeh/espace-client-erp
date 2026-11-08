@@ -1,0 +1,16 @@
+@use '../../shared/list-page' as *;
+
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.auth-field label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $color-ink;
+  margin-bottom: 4px;
+}

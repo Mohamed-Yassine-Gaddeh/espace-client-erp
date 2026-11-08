@@ -1,0 +1,81 @@
+<div class="page">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="page__content">
+    <div class="notif-header">
+      <h1 class="page__title">{{ i18n.t('clients.title') }}</h1>
+      <button class="primary-button" (click)="toggleForm()">
+        {{ isFormOpen() ? i18n.t('common.cancel') : i18n.t('clients.new') }}
+      </button>
+    </div>
+
+    @if (isFormOpen()) {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="detail-card" novalidate>
+        @if (formError()) {
+          <div class="page__error" style="padding: 10px; margin-bottom: 12px;">{{ formError() }}</div>
+        }
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('clients.name') }} *</label>
+          <input formControlName="nom" type="text" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('clients.email') }}</label>
+          <input formControlName="email" type="email" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('clients.phone') }}</label>
+          <input formControlName="telephone" type="text" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('clients.vat') }}</label>
+          <input formControlName="numero_tva" type="text" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 16px;">
+          <label>{{ i18n.t('clients.siret') }}</label>
+          <input formControlName="siret" type="text" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <button type="submit" class="primary-button" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? i18n.t('clients.creating') : i18n.t('clients.createBtn') }}
+        </button>
+      </form>
+    }
+
+    @if (isLoading()) {
+      <div class="page__loading">{{ i18n.t('common.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="page__error">
+        {{ loadError() }}
+        <button (click)="load()">{{ i18n.t('common.retry') }}</button>
+      </div>
+    } @else if (clients().length === 0) {
+      <p class="page__empty">{{ i18n.t('clients.empty') }}</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ i18n.t('clients.name') }}</th>
+            <th>{{ i18n.t('clients.email') }}</th>
+            <th>{{ i18n.t('clients.phone') }}</th>
+            <th>{{ i18n.t('clients.vat') }}</th>
+            <th>{{ i18n.t('clients.status') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of clients(); track c.id) {
+            <tr>
+              <td>{{ c.nom }}</td>
+              <td>{{ c.email || '-' }}</td>
+              <td>{{ c.telephone || '-' }}</td>
+              <td>{{ c.numero_tva || '-' }}</td>
+              <td>
+                <span class="status-badge" [class.status-badge--ok]="!c.est_bloquer">
+                  {{ c.est_bloquer ? i18n.t('clients.blocked') : i18n.t('clients.active') }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </main>
+</div>

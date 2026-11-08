@@ -1,0 +1,55 @@
+<div class="page">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="page__content">
+    <h1 class="page__title">{{ i18n.t('invoices.title') }}</h1>
+
+    @if (isLoading()) {
+      <div class="page__loading">{{ i18n.t('common.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="page__error">
+        {{ loadError() }}
+        <button (click)="load()">{{ i18n.t('common.retry') }}</button>
+      </div>
+    } @else if (invoices().length === 0) {
+      <p class="page__empty">{{ i18n.t('invoices.empty') }}</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ i18n.t('invoices.number') }}</th>
+            <th>{{ i18n.t('invoices.date') }}</th>
+            <th>{{ i18n.t('invoices.dueDate') }}</th>
+            <th>{{ i18n.t('invoices.status') }}</th>
+            <th>{{ i18n.t('invoices.totalTtc') }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (invoice of invoices(); track invoice.id) {
+            <tr [routerLink]="['/invoices', invoice.id]" class="data-table__row">
+              <td>{{ invoice.numero }}</td>
+              <td>{{ invoice.date_facture | date: 'dd/MM/yyyy' }}</td>
+              <td>{{ invoice.date_echeance | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="status-badge" [class.status-badge--ok]="invoice.est_solder">
+                  {{ invoice.est_solder ? i18n.t('invoices.settled') : i18n.t('invoices.pending') }}
+                </span>
+              </td>
+              <td>{{ invoice.total_ttc | number: '1.2-2' }} {{ i18n.t('common.currency') }}</td>
+              <td>
+                <button
+                  class="link-button"
+                  (click)="downloadPdf(invoice, $event)"
+                  [disabled]="downloadingId() === invoice.id"
+                >
+                  {{ downloadingId() === invoice.id ? '...' : i18n.t('orders.pdf') }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </main>
+</div>

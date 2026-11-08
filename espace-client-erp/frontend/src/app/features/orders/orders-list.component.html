@@ -1,0 +1,55 @@
+<div class="page">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="page__content">
+    <h1 class="page__title">{{ i18n.t('orders.title') }}</h1>
+
+    @if (isLoading()) {
+      <div class="page__loading">{{ i18n.t('common.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="page__error">
+        {{ loadError() }}
+        <button (click)="load()">{{ i18n.t('common.retry') }}</button>
+      </div>
+    } @else if (orders().length === 0) {
+      <p class="page__empty">{{ i18n.t('orders.empty') }}</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ i18n.t('orders.number') }}</th>
+            <th>{{ i18n.t('orders.date') }}</th>
+            <th>{{ i18n.t('orders.status') }}</th>
+            <th>{{ i18n.t('orders.totalTtc') }}</th>
+            <th>{{ i18n.t('orders.balanceDue') }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (order of orders(); track order.id) {
+            <tr [routerLink]="['/orders', order.id]" class="data-table__row">
+              <td>{{ order.numero }}</td>
+              <td>{{ order.date_commande | date: 'dd/MM/yyyy' }}</td>
+              <td>
+                <span class="status-badge" [class.status-badge--ok]="order.est_valider">
+                  {{ order.est_valider ? i18n.t('orders.validated') : i18n.t('orders.pending') }}
+                </span>
+              </td>
+              <td>{{ order.total_ttc | number: '1.2-2' }} {{ i18n.t('common.currency') }}</td>
+              <td>{{ order.solde_du | number: '1.2-2' }} {{ i18n.t('common.currency') }}</td>
+              <td>
+                <button
+                  class="link-button"
+                  (click)="downloadPdf(order, $event)"
+                  [disabled]="downloadingId() === order.id"
+                >
+                  {{ downloadingId() === order.id ? '...' : i18n.t('orders.pdf') }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </main>
+</div>

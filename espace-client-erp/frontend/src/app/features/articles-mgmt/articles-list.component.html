@@ -1,0 +1,99 @@
+<div class="page">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="page__content">
+    <div class="notif-header">
+      <h1 class="page__title">{{ i18n.t('articles.title') }}</h1>
+      <button class="primary-button" (click)="toggleForm()">
+        {{ isFormOpen() ? i18n.t('common.cancel') : i18n.t('articles.new') }}
+      </button>
+    </div>
+
+    @if (isFormOpen()) {
+      <form [formGroup]="form" (ngSubmit)="submit()" class="detail-card" novalidate>
+        @if (formError()) {
+          <div class="page__error" style="padding: 10px; margin-bottom: 12px;">{{ formError() }}</div>
+        }
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('articles.name') }} *</label>
+          <input formControlName="nom" type="text" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('articles.reference') }}</label>
+          <input formControlName="reference" type="text" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('articles.priceHt') }}</label>
+          <input formControlName="prix_vente_ht" type="number" step="0.001" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('articles.priceTtc') }}</label>
+          <input formControlName="prix_vente_ttc" type="number" step="0.001" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('articles.stockAvailable') }}</label>
+          <input formControlName="stock_disponible" type="number" step="0.001" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;" />
+        </div>
+        <div class="auth-field" style="margin-bottom: 12px;">
+          <label>{{ i18n.t('articles.family') }}</label>
+          <select formControlName="famille_article_id" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;">
+            <option [ngValue]="null">—</option>
+            @for (f of options().familles; track f.id) {
+              <option [ngValue]="f.id">{{ f.libelle }}</option>
+            }
+          </select>
+        </div>
+        <div class="auth-field" style="margin-bottom: 16px;">
+          <label>{{ i18n.t('articles.vat') }}</label>
+          <select formControlName="tva_id" style="width:100%; padding:8px; border:1px solid #cbd3e0; border-radius:6px;">
+            <option [ngValue]="null">—</option>
+            @for (t of options().tvas; track t.id) {
+              <option [ngValue]="t.id">{{ t.libelle }} ({{ t.valeur }}%)</option>
+            }
+          </select>
+        </div>
+        <button type="submit" class="primary-button" [disabled]="isSubmitting()">
+          {{ isSubmitting() ? i18n.t('articles.creating') : i18n.t('articles.createBtn') }}
+        </button>
+      </form>
+    }
+
+    @if (isLoading()) {
+      <div class="page__loading">{{ i18n.t('common.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="page__error">
+        {{ loadError() }}
+        <button (click)="load()">{{ i18n.t('common.retry') }}</button>
+      </div>
+    } @else if (articles().length === 0) {
+      <p class="page__empty">{{ i18n.t('articles.empty') }}</p>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>{{ i18n.t('articles.name') }}</th>
+            <th>{{ i18n.t('articles.reference') }}</th>
+            <th>{{ i18n.t('articles.family') }}</th>
+            <th>{{ i18n.t('articles.priceHt') }}</th>
+            <th>{{ i18n.t('articles.stock') }}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of articles(); track a.id) {
+            <tr>
+              <td>{{ a.nom }}</td>
+              <td>{{ a.reference || '-' }}</td>
+              <td>{{ a.famille_libelle || '-' }}</td>
+              <td>{{ a.prix_vente_ht | number: '1.3-3' }} {{ i18n.t('common.currency') }}</td>
+              <td>{{ a.stock_disponible }}</td>
+              <td>
+                <button class="link-button" (click)="deleteArticle(a)">{{ i18n.t('common.delete') }}</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </main>
+</div>

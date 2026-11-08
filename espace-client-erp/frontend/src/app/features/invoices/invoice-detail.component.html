@@ -1,0 +1,72 @@
+<div class="page">
+  <app-nav-bar></app-nav-bar>
+
+  <main class="page__content">
+    <a routerLink="/invoices" class="back-link">{{ i18n.t('invoices.backToList') }}</a>
+
+    @if (isLoading()) {
+      <div class="page__loading">{{ i18n.t('common.loading') }}</div>
+    } @else if (loadError()) {
+      <div class="page__error">{{ loadError() }}</div>
+    } @else if (invoice(); as f) {
+      <h1 class="page__title">{{ i18n.t('nav.invoices') }} {{ f.numero }}</h1>
+
+      <div class="detail-card">
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('invoices.date') }}</span>
+          <span class="detail-card__value">{{ f.date_facture | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('invoices.dueDate') }}</span>
+          <span class="detail-card__value">{{ f.date_echeance | date: 'dd/MM/yyyy' }}</span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('invoices.status') }}</span>
+          <span class="status-badge" [class.status-badge--ok]="f.est_solder">
+            {{ f.est_solder ? i18n.t('invoices.settled') : i18n.t('invoices.pending') }}
+          </span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('invoices.totalTtc') }}</span>
+          <span class="detail-card__value">{{ f.total_ttc | number: '1.2-2' }} {{ i18n.t('common.currency') }}</span>
+        </div>
+        <div class="detail-card__row">
+          <span class="detail-card__label">{{ i18n.t('invoices.balanceDue') }}</span>
+          <span class="detail-card__value">{{ f.solde_du | number: '1.2-2' }} {{ i18n.t('common.currency') }}</span>
+        </div>
+      </div>
+
+      <button class="primary-button" (click)="downloadPdf()" [disabled]="isDownloading()">
+        {{ isDownloading() ? i18n.t('orders.generating') : i18n.t('orders.downloadPdf') }}
+      </button>
+
+      <h2 class="page__title" style="font-size: 16px; margin-top: 28px;">{{ i18n.t('orders.articles') }}</h2>
+      @if (f.lignes.length > 0) {
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>{{ i18n.t('orders.article') }}</th>
+              <th>{{ i18n.t('orders.reference') }}</th>
+              <th>{{ i18n.t('orders.quantity') }}</th>
+              <th>{{ i18n.t('orders.priceHt') }}</th>
+              <th>{{ i18n.t('orders.totalTtc') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (ligne of f.lignes; track $index) {
+              <tr>
+                <td>{{ ligne.nom_article }}</td>
+                <td>{{ ligne.reference || '-' }}</td>
+                <td>{{ ligne.quantite }}</td>
+                <td>{{ ligne.prix_ht | number: '1.3-3' }} {{ i18n.t('common.currency') }}</td>
+                <td>{{ ligne.total_prix_ttc | number: '1.2-2' }} {{ i18n.t('common.currency') }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <p class="page__empty">{{ i18n.t('orders.noLines') }}</p>
+      }
+    }
+  </main>
+</div>

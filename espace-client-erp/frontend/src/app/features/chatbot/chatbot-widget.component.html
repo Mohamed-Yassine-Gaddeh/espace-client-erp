@@ -1,0 +1,41 @@
+<div class="chatbot">
+  @if (isOpen()) {
+    <div class="chatbot__panel">
+      <div class="chatbot__header">
+        <span>{{ i18n.t('chatbot.title') }}</span>
+        <button class="chatbot__close" (click)="toggle()" [attr.aria-label]="i18n.t('common.close')">✕</button>
+      </div>
+
+      <div class="chatbot__messages" #messagesEl>
+        @for (msg of messages(); track $index) {
+          <div class="chatbot__bubble" [class.chatbot__bubble--user]="msg.role === 'user'">
+            {{ msg.text }}
+          </div>
+        }
+        @if (isSending()) {
+          <div class="chatbot__bubble chatbot__bubble--typing">…</div>
+        }
+      </div>
+
+      <div class="chatbot__input-row">
+        <textarea
+          class="chatbot__input"
+          [ngModel]="draft()"
+          (ngModelChange)="draft.set($event)"
+          (keydown)="onKeydown($event)"
+          [placeholder]="i18n.t('chatbot.placeholder')"
+          rows="1"
+        ></textarea>
+        <button class="chatbot__send" (click)="send()" [disabled]="isSending()">{{ i18n.t('chatbot.send') }}</button>
+      </div>
+    </div>
+  }
+
+  <button class="chatbot__fab" (click)="toggle()" aria-label="Chat">
+    @if (isOpen()) {
+      ✕
+    } @else {
+      💬
+    }
+  </button>
+</div>
